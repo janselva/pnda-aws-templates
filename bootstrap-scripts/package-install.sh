@@ -52,21 +52,21 @@ if [ "x$ADD_ONLINE_REPOS" == "xYES" ]; then
   yum-config-manager --enable $RPM_EXTRAS $RPM_OPTIONAL
   yum install -y yum-plugin-priorities yum-utils 
   PNDA_REPO=${PNDA_MIRROR/http\:\/\//}
-  PNDA_REPO=${PNDA_REPO/\//_mirror_rpm}
-  yum-config-manager --add-repo $PNDA_MIRROR/mirror_rpm
+  PNDA_REPO=${PNDA_REPO/\//_james/mirror_rpm}
+  yum-config-manager --add-repo $PNDA_MIRROR/james/mirror_rpm
   yum-config-manager --setopt="$PNDA_REPO.priority=1" --enable $PNDA_REPO
 else
   mkdir -p /etc/yum.repos.d.backup/
   mv /etc/yum.repos.d/* /etc/yum.repos.d.backup/
-  yum-config-manager --add-repo $PNDA_MIRROR/mirror_rpm
+  yum-config-manager --add-repo $PNDA_MIRROR/james/mirror_rpm
 fi
-  rpm --import $PNDA_MIRROR/mirror_rpm/RPM-GPG-KEY-redhat-release
-  rpm --import $PNDA_MIRROR/mirror_rpm/RPM-GPG-KEY-mysql
-  rpm --import $PNDA_MIRROR/mirror_rpm/RPM-GPG-KEY-cloudera
-  rpm --import $PNDA_MIRROR/mirror_rpm/RPM-GPG-KEY-EPEL-7
-  rpm --import $PNDA_MIRROR/mirror_rpm/SALTSTACK-GPG-KEY.pub
-  rpm --import $PNDA_MIRROR/mirror_rpm/RPM-GPG-KEY-CentOS-7
-  rpm --import $PNDA_MIRROR/mirror_rpm/RPM-GPG-KEY-Jenkins
+  rpm --import $PNDA_MIRROR/james/mirror_rpm/RPM-GPG-KEY-redhat-release
+  rpm --import $PNDA_MIRROR/james/mirror_rpm/RPM-GPG-KEY-mysql
+  rpm --import $PNDA_MIRROR/james/mirror_rpm/RPM-GPG-KEY-cloudera
+  rpm --import $PNDA_MIRROR/james/mirror_rpm/RPM-GPG-KEY-EPEL-7
+  rpm --import $PNDA_MIRROR/james/mirror_rpm/SALTSTACK-GPG-KEY.pub
+  rpm --import $PNDA_MIRROR/james/mirror_rpm/RPM-GPG-KEY-CentOS-7
+  rpm --import $PNDA_MIRROR/james/mirror_rpm/RPM-GPG-KEY-Jenkins
 fi
 
 PIP_INDEX_URL="$PNDA_MIRROR/mirror_python/simple"
