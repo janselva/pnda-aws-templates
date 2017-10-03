@@ -121,7 +121,7 @@ pnda_mirror:
   app_packages_path: /mirror_apps/
 
 cloudera:
-  parcel_repo: '$PNDA_MIRROR/mirror_cloudera'
+  parcel_repo: '$PNDA_MIRROR/mirror_cloudera/512'
 
 anaconda:
   parcel_version: "4.0.0"
