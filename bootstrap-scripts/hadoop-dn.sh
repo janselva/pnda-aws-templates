@@ -27,6 +27,14 @@ cat >> /etc/salt/minion <<EOF
 id: $PNDA_CLUSTER-hadoop-dn-$1
 EOF
 
+# list of mountpoints to assign to volumes in decreasing size order
+# mountpoint filesystem
+mkdir -p /etc/pnda/disk-config
+cat > /etc/pnda/disk-config/requested-volumes <<EOF
+/data0 xfs
+/var/log/pnda xfs
+EOF
+
 echo $PNDA_CLUSTER-hadoop-dn-$1 > /etc/hostname
 hostname $PNDA_CLUSTER-hadoop-dn-$1
 

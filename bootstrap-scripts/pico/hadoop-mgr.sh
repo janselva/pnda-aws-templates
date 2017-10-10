@@ -36,6 +36,13 @@ cat >> /etc/salt/minion.d/beacons.conf <<EOF
     disable_during_state_run: True
 EOF
 
+# list of mountpoints to assign to volumes in decreasing size order
+# mountpoint filesystem
+mkdir -p /etc/pnda/disk-config
+cat > /etc/pnda/disk-config/requested-volumes <<EOF
+/var/log/pnda xfs
+EOF
+
 echo $PNDA_CLUSTER-hadoop-mgr-1 > /etc/hostname
 hostname $PNDA_CLUSTER-hadoop-mgr-1
 

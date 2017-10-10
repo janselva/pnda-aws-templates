@@ -66,6 +66,13 @@ EOF
 
 fi
 
+# list of mountpoints to assign to volumes in decreasing size order
+# mountpoint filesystem
+mkdir -p /etc/pnda/disk-config
+cat > /etc/pnda/disk-config/requested-volumes <<EOF
+/var/log/pnda xfs
+EOF
+
 ifup $PNDA_INGEST_NETWORK
 
 echo $PNDA_CLUSTER-kafka-$1 > /etc/hostname

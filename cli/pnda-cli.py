@@ -200,7 +200,11 @@ def bootstrap(instance, saltmaster, cluster, flavor, branch, salt_tarball, error
         if not os.path.isfile(type_script):
             type_script = 'bootstrap-scripts/%s.sh' % (node_type)
         node_idx = instance['node_idx']
-        files_to_scp = ['cli/pnda_env_%s.sh' % cluster, 'bootstrap-scripts/package-install.sh', 'bootstrap-scripts/base.sh', type_script]
+        files_to_scp = ['cli/pnda_env_%s.sh' % cluster,
+                        'bootstrap-scripts/package-install.sh',
+                        'bootstrap-scripts/base.sh',
+                        'bootstrap-scripts/volume-mappings.sh',
+                         type_script]
         cmds_to_run = ['source /tmp/pnda_env_%s.sh' % cluster,
                        'export PNDA_SALTMASTER_IP=%s' % saltmaster,
                        'export PNDA_CLUSTER=%s' % cluster,
@@ -209,6 +213,7 @@ def bootstrap(instance, saltmaster, cluster, flavor, branch, salt_tarball, error
                        'export PLATFORM_SALT_TARBALL=%s' % salt_tarball if salt_tarball is not None else ':',
                        'sudo chmod a+x /tmp/package-install.sh',
                        'sudo chmod a+x /tmp/base.sh',
+                       'sudo chmod a+x /tmp/volume-mappings.sh',
                        '(sudo -E /tmp/package-install.sh 2>&1) | tee -a pnda-bootstrap.log; %s' % THROW_BASH_ERROR,
                        '(sudo -E /tmp/base.sh 2>&1) | tee -a pnda-bootstrap.log; %s' % THROW_BASH_ERROR]
 
@@ -220,6 +225,8 @@ def bootstrap(instance, saltmaster, cluster, flavor, branch, salt_tarball, error
 
         cmds_to_run.append('sudo chmod a+x /tmp/%s.sh' % node_type)
         cmds_to_run.append('(sudo -E /tmp/%s.sh %s 2>&1) | tee -a pnda-bootstrap.log; %s' % (node_type, node_idx, THROW_BASH_ERROR))
+        cmds_to_run.append('(sudo -E /tmp/volume-mappings.sh %s %s 2>&1) | tee -a pnda-bootstrap.log; %s' %
+                           ('/etc/pnda/disk-config/requested-volumes', '/etc/pnda/disk-config/volume-mappings', THROW_BASH_ERROR))
 
         scp(files_to_scp, cluster, ip_address)
         ssh(cmds_to_run, cluster, ip_address)
