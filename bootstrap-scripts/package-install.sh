@@ -26,22 +26,38 @@ fi
 if [ "x$NTP_SERVERS" != "x" ]; then
 iptables -A LOGGING -d  $NTP_SERVERS -j ACCEPT # NTP server
 fi
-iptables -A LOGGING -d  10.0.0.0/16 -j ACCEPT # PNDA network
+iptables -A LOGGING -d  $vpcCidr -j ACCEPT # PNDA network
 iptables -A LOGGING -j REJECT
 fi
 
 DISTRO=$(cat /etc/*-release|grep ^ID\=|awk -F\= {'print $2'}|sed s/\"//g)
+
+
+# handling following 3 scenarios
+# REJECT_OUTBOUND ADD_ONLINE_REPOS
+# RO is YES , Repo is NO
+# RO is NO  , Repo is YES
+# RO is NO  , Repo is NO
 if [ "x$DISTRO" == "xubuntu" ]; then
   export DEBIAN_FRONTEND=noninteractive
-  # give the local mirror the first priority 
-  sed -i "1ideb $PNDA_MIRROR/mirror_deb/ ./" /etc/apt/sources.list
+
+  if [ "x$REJECT_OUTBOUND" == "xYES" ]; then
+    mv /etc/apt/sources.list /etc/apt/sources.list.backup
+    echo "deb $PNDA_MIRROR/mirror_deb/ ./" > /etc/apt/sources.list
+    if [ -d /etc/apt/sources.list.d ]; then
+      mv /etc/apt/sources.list.d/ /etc/apt/sources.list.d.backup/
+    fi
+  else
+    sed -i "1ideb $PNDA_MIRROR/mirror_deb/ ./" /etc/apt/sources.list
+  fi
   wget -O - $PNDA_MIRROR/mirror_deb/pnda.gpg.key | apt-key add -
 
-if [ "x$ADD_ONLINE_REPOS" == "xYES" ]; then
-  (curl -L 'https://archive.cloudera.com/cm5/ubuntu/trusty/amd64/cm/archive.key' | apt-key add - ) && echo 'deb [arch=amd64] https://archive.cloudera.com/cm5/ubuntu/trusty/amd64/cm/ trusty-cm5.9.0 contrib' > /etc/apt/sources.list.d/cloudera-manager.list
-  (curl -L 'https://repo.saltstack.com/apt/ubuntu/14.04/amd64/archive/2015.8.11/SALTSTACK-GPG-KEY.pub' | apt-key add - ) && echo 'deb [arch=amd64] https://repo.saltstack.com/apt/ubuntu/14.04/amd64/archive/2015.8.11/ trusty main' > /etc/apt/sources.list.d/saltstack.list
-  (curl -L 'https://deb.nodesource.com/gpgkey/nodesource.gpg.key' | apt-key add - ) && echo 'deb [arch=amd64] https://deb.nodesource.com/node_6.x trusty main' > /etc/apt/sources.list.d/nodesource.list
-fi
+  if [ "x$ADD_ONLINE_REPOS" == "xYES" ]; then
+    (curl -L 'https://archive.cloudera.com/cm5/ubuntu/trusty/amd64/cm/archive.key' | apt-key add - ) && echo 'deb [arch=amd64] https://archive.cloudera.com/cm5/ubuntu/trusty/amd64/cm/ trusty-cm5.9.0 contrib' > /etc/apt/sources.list.d/cloudera-manager.list
+    (curl -L 'https://repo.saltstack.com/apt/ubuntu/14.04/amd64/archive/2015.8.11/SALTSTACK-GPG-KEY.pub' | apt-key add - ) && echo 'deb [arch=amd64] https://repo.saltstack.com/apt/ubuntu/14.04/amd64/archive/2015.8.11/ trusty main' > /etc/apt/sources.list.d/saltstack.list
+    (curl -L 'https://deb.nodesource.com/gpgkey/nodesource.gpg.key' | apt-key add - ) && echo 'deb [arch=amd64] https://deb.nodesource.com/node_6.x trusty main' > /etc/apt/sources.list.d/nodesource.list
+
+  fi
   apt-get update
 
 elif [ "x$DISTRO" == "xrhel" -o "x$DISTRO" == "xcentos" ]; then

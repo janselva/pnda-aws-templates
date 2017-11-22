@@ -758,7 +758,12 @@ def main():
         else:
             print 'destroy command must specify pnda_cluster, e.g.\npnda-cli.py destroy -e squirrel-land'
             sys.exit(1)
-
+    REJECT_OUTBOUND = PNDA_ENV['connectivity']['REJECT_OUTBOUND']
+    ADD_ONLINE_REPOS = PNDA_ENV['connectivity']['ADD_ONLINE_REPOS']
+    if ADD_ONLINE_REPOS in ['YES',True] and REJECT_OUTBOUND in ['YES',True] :
+       print 'If REJECT_OUTBOUND is YES , ADD_ONLINE_REPOS must be NO , verify pnda_env.yaml File'
+       sys.exit(1)
+       
     while pnda_cluster is None:
         pnda_cluster = raw_input("Enter a name for the pnda cluster (e.g. squirrel-land): ")
         if not re.match(NAME_REGEX, pnda_cluster):
